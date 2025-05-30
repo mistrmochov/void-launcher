@@ -1,0 +1,30 @@
+window {
+    border-radius: 25px;
+}
+
+.search-box {
+    border-radius: 25px;
+    font-size: x-large;
+    background: #404040;
+    padding-bottom: 9px;
+    padding-top: 9px;
+    padding-left: 16px;
+    padding-right: 16px;
+}
+
+.search-entry {
+    outline: none;
+}
+
+.app-label {
+    font-size: x-small;
+}
+
+.scrolled-window {
+    background: #404040;
+    border-radius: 25px;
+    padding-top: 15px;
+    padding-bottom: 18px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
