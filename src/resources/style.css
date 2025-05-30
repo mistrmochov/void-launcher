@@ -1,3 +1,8 @@
+* {
+    --accent-color: #404040;
+    --select-color: #ffc0cb;
+}
+
 window {
     border-radius: 25px;
 }
@@ -5,7 +10,7 @@ window {
 .search-box {
     border-radius: 25px;
     font-size: x-large;
-    background: #404040;
+    background: var(--accent-color);
     padding-bottom: 9px;
     padding-top: 9px;
     padding-left: 16px;
@@ -21,7 +26,7 @@ window {
 }
 
 .scrolled-window {
-    background: #404040;
+    background: var(--accent-color);
     border-radius: 25px;
     padding-top: 15px;
     padding-bottom: 18px;
@@ -31,7 +36,7 @@ window {
 
 flowboxchild:selected {
     background-color: transparent;
-    box-shadow: 0 3px 0 0 #ffc0cb;
+    box-shadow: 0 3px 0 0 var(--select-color);
     color: unset;
 }
 
@@ -39,4 +44,19 @@ flowboxchild {
     border-radius: 0px;
     box-shadow: none;
     transition: box-shadow 200ms ease-in-out;
+}
+
+button.app-button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: unset;
+    animation: none;
+    border-radius: 0px;
+    box-shadow: none;
+    transition: box-shadow 200ms ease-in-out;
+}
+
+button.selected-button {
+    box-shadow: 0 3px 0 0 var(--select-color);
 }

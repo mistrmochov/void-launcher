@@ -5,6 +5,7 @@
         "input": "exclusive",
         "width": "600",
         "height": "800",
-        "columns": "auto"
+        "columns": "auto",
+        "icon_size": "auto"
     }
 ]

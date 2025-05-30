@@ -1,7 +1,8 @@
+use std::cell::RefCell;
 use std::path::PathBuf;
 
 use crate::constants::UI_XML;
-use crate::events::events;
+use crate::events::{apps_events, events};
 use crate::is_dark_theme_active;
 use crate::utils::{ConfFile, get_conf_data, string_to_i32, string_to_u32};
 use dirs::home_dir;
@@ -13,6 +14,7 @@ use gtk4::{
     prelude::*,
 };
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
+use std::rc::Rc;
 
 pub fn build_ui(app: &gtk::Application) -> Result<()> {
     let builder = Builder::from_string(UI_XML);
@@ -29,7 +31,9 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
         let input_mode = get_conf_data(conf.read(), "input");
         let mut width = string_to_i32(get_conf_data(conf.read(), "width"), "width");
         let mut height = string_to_i32(get_conf_data(conf.read(), "height"), "height");
-        let columns_mode = get_conf_data(conf.read(), "columns");
+        let columns_mode_string = get_conf_data(conf.read(), "columns");
+        let mut icon_size_string = get_conf_data(conf.read(), "icon_size");
+        let icon_size_memory = Rc::new(RefCell::new(0));
 
         window.init_layer_shell();
         if fullscreen == "false" {
@@ -106,7 +110,6 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                 let name = appynka.name();
                 let err = format!("Failed to process the icon of app: {}.", name);
                 let icon = appynka.icon().expect(&err);
-                let exec = appynka.executable(); // or app.launch() later
 
                 let label = Label::new(Some(&name));
                 label.set_justify(gtk::Justification::Fill);
@@ -115,7 +118,26 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                 label.set_max_width_chars(5); // or whatever works for your icon size
                 label.set_wrap(false);
                 let image = Image::from_gicon(&icon);
-                image.set_icon_size(gtk4::IconSize::Large);
+
+                let icon_size;
+                if icon_size_string != "auto" {
+                    let icon_size_int = string_to_i32(icon_size_string.clone(), "");
+                    if icon_size_int >= 20 {
+                        icon_size = icon_size_int;
+                        *icon_size_memory.borrow_mut() = icon_size_int;
+                    } else {
+                        println!(
+                            "\"{}\" isn't a valid value for \"icon_size\", going with \"auto\".",
+                            icon_size_string
+                        );
+                        icon_size = 30;
+                        icon_size_string = "auto".to_string();
+                    }
+                } else {
+                    icon_size = 30;
+                }
+
+                image.set_pixel_size(icon_size);
                 image.set_valign(gtk4::Align::Center);
                 image.set_halign(gtk4::Align::Center);
                 app_images.push(image.clone());
@@ -123,37 +145,62 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                 app_box.append(&image);
                 app_box.append(&label);
                 app_box.add_css_class("appynka");
+                let app_button = Button::builder().child(&app_box).build();
+                app_button.add_css_class("flat");
+                app_button.add_css_class("app-button");
+                unsafe {
+                    app_button.set_data("app-info", appynka.clone());
+                }
 
-                flowbox.insert(&app_box, -1);
+                flowbox.insert(&app_button, -1);
+
+                apps_events(appynka, app_button, builder.clone(), app.clone())?;
             }
         }
 
         let window_clone = window.clone();
+        let icon_size_memory_clone = icon_size_memory.clone();
         glib::idle_add_local_once(move || {
-            let columns = match window_clone.width() {
-                0..=499 => 3,
-                500..=799 => 5,
-                800..=1099 => 6,
-                1100..=1399 => 7,
-                1400..=1699 => 8,
-                1700..=1999 => 9,
-                _ => 10,
-            };
+            let colmuns_mode = string_to_u32(columns_mode_string.clone());
+            let columns;
+            if colmuns_mode >= 2 {
+                columns = colmuns_mode;
+            } else {
+                if columns_mode_string != "auto" {
+                    println!(
+                        "\"{}\" isn't a valid value for \"columns\", going with \"auto\".",
+                        columns_mode_string
+                    );
+                }
+                columns = match window_clone.width() {
+                    0..=499 => 3,
+                    500..=799 => 5,
+                    800..=1099 => 6,
+                    1100..=1399 => 7,
+                    1400..=1699 => 8,
+                    1700..=1999 => 9,
+                    _ => 10,
+                };
+            }
 
-            // let icon_size = match window_clone.width() {
-            //     0..=500 => 5,
-            //     _ => 5,
-            // };
-
-            for app_image in app_images.clone().iter() {
-                app_image.set_pixel_size(30);
+            if icon_size_string == "auto" {
+                let icon_size = match window_clone.width() {
+                    0..=599 => 30,
+                    600..=1799 => 40,
+                    1800..=2399 => 50,
+                    _ => 60,
+                };
+                for app_image in app_images.clone().iter() {
+                    app_image.set_pixel_size(icon_size);
+                    *icon_size_memory_clone.borrow_mut() = icon_size;
+                }
             }
 
             flowbox.set_max_children_per_line(columns);
             flowbox.set_min_children_per_line(columns);
         });
 
-        events(app.to_owned(), builder)?;
+        events(app.to_owned(), builder, icon_size_memory.clone())?;
 
         app.connect_activate(move |_| {
             window.present();

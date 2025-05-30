@@ -24,6 +24,8 @@ pub fn get_conf_data(conf: String, which: &str) -> String {
         for entry in data_array {
             if let Some(target) = entry.get(which).and_then(|s| s.as_str()) {
                 out = target.to_string();
+            } else {
+                println!("Couldn't find \"{}\" in your config file!", which);
             }
         }
     }
@@ -57,11 +59,12 @@ pub fn string_to_i32(input: String, which: &str) -> i32 {
             out = number;
         }
         Err(_) => {
-            println!("Couldn't parse a string to a number");
             if which == "height" {
+                println!("Couldn't parse a string to a number");
                 println!("Going with the default height: 800");
                 out = 800;
             } else if which == "width" {
+                println!("Couldn't parse a string to a number");
                 println!("Going with the default width: 600");
                 out = 600;
             } else {
@@ -79,7 +82,6 @@ pub fn string_to_u32(input: String) -> u32 {
             out = number;
         }
         Err(_) => {
-            println!("Couldn't parse a string to a number");
             out = 0;
         }
     }

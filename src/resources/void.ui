@@ -78,7 +78,7 @@
                                 <property name="max-children-per-line">5</property>
                                 <property name="min-children-per-line">5</property>
                                 <property name="selection_mode">single</property>
-                                <property name="valign">fill</property>
+                                <property name="valign">start</property>
                                 <property name="hexpand">true</property>
                                 <property name="vexpand">true</property>
                             </object>
