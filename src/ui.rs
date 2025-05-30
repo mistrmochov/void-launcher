@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use crate::constants::UI_XML;
+use crate::events::events;
 use crate::is_dark_theme_active;
 use crate::utils::{ConfFile, get_conf_data};
 use dirs::home_dir;
@@ -19,7 +20,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
     let flowbox: FlowBox = get_object(&builder, "apps-box")?;
     window.set_application(Some(app));
     if let Some(home) = home_dir() {
-        let conf = ConfFile::new(home.join(".config/randik/config.json"))?;
+        let conf = ConfFile::new(home.join(".config/void-launcher/config.json"))?;
         let layer = get_conf_data(conf.read(), "layer");
         let fullscreen = get_conf_data(conf.read(), "fullscreen");
         let input_mode = get_conf_data(conf.read(), "input");
@@ -91,7 +92,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
             }
         }
 
-        // events(app.to_owned(), builder)?;
+        events(app.to_owned(), builder)?;
 
         app.connect_activate(move |_| {
             window.present();
