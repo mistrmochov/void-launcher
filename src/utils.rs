@@ -49,3 +49,23 @@ pub fn get_border_color(conf: String) -> Vec<String> {
 
     color
 }
+
+pub fn string_to_i32(input: String, which: &str) -> i32 {
+    let out;
+    match input.parse::<i32>() {
+        Ok(number) => {
+            out = number;
+        }
+        Err(_) => {
+            println!("Couldn't parse a string to a number");
+            if which == "height" {
+                out = 800;
+            } else if which == "width" {
+                out = 600;
+            } else {
+                out = 0;
+            }
+        }
+    }
+    out
+}

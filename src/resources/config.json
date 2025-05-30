@@ -1,8 +1,9 @@
 [
     {
         "fullscreen": "true",
-        "widescreen-mode": "false",
         "layer": "top",
-        "input": "on-demand"
+        "input": "on-demand",
+        "width": "600",
+        "height": "800"
     }
 ]

@@ -12,7 +12,7 @@
                 <property name="spacing">2</property>
                 <property name="halign">fill</property>
                 <property name="valign">fill</property>
-                <property name="margin-top">10</property>
+                <property name="margin-top">15</property>
                 <property name="margin-end">15</property>
                 <property name="margin-start">15</property>
                 <property name="hexpand">true</property>
@@ -77,7 +77,7 @@
                                 </style>
                                 <property name="max-children-per-line">5</property>
                                 <property name="min-children-per-line">5</property>
-                                <property name="selection_mode">none</property>
+                                <property name="selection_mode">single</property>
                                 <property name="valign">fill</property>
                                 <property name="hexpand">true</property>
                                 <property name="vexpand">true</property>

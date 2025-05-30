@@ -28,3 +28,15 @@ window {
     padding-left: 10px;
     padding-right: 10px;
 }
+
+flowboxchild:selected {
+    background-color: transparent;
+    box-shadow: 0 3px 0 0 #ffc0cb;
+    color: unset;
+}
+
+flowboxchild {
+    border-radius: 0px;
+    box-shadow: none;
+    transition: box-shadow 200ms ease-in-out;
+}
