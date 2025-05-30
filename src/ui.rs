@@ -3,18 +3,16 @@ use std::path::PathBuf;
 use crate::constants::UI_XML;
 use crate::events::events;
 use crate::is_dark_theme_active;
-use crate::utils::{ConfFile, get_conf_data, string_to_i32};
+use crate::utils::{ConfFile, get_conf_data, string_to_i32, string_to_u32};
 use dirs::home_dir;
 use eyre::{Ok, Result, eyre};
 use gtk4::{
     self as gtk, ApplicationWindow, Box, Builder, Button, FlowBox, Image, Label, Orientation,
-    Popover, gdk,
     gio::AppInfo,
     glib::{self, object::IsA},
     prelude::*,
 };
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
-use std::time::Duration;
 
 pub fn build_ui(app: &gtk::Application) -> Result<()> {
     let builder = Builder::from_string(UI_XML);
@@ -31,8 +29,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
         let input_mode = get_conf_data(conf.read(), "input");
         let mut width = string_to_i32(get_conf_data(conf.read(), "width"), "width");
         let mut height = string_to_i32(get_conf_data(conf.read(), "height"), "height");
-        let test_box = Box::new(Orientation::Horizontal, 10);
-        //flowbox.set_selection_mode(gtk::SelectionMode::);
+        let columns_mode = get_conf_data(conf.read(), "columns");
 
         window.init_layer_shell();
         if fullscreen == "false" {
@@ -48,6 +45,12 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
             window.set_default_height(height);
             window.set_default_width(width);
         } else {
+            if fullscreen != "true" {
+                println!(
+                    "\"{}\" isn't a valid value for \"fullscreen\", going with default mode: \"false\".",
+                    fullscreen
+                );
+            }
             window.set_anchor(Edge::Top, true);
             window.set_anchor(Edge::Left, true);
             window.set_anchor(Edge::Right, true);
@@ -59,12 +62,24 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
         } else if layer == "bottom" {
             window.set_layer(Layer::Bottom);
         } else {
+            if layer != "top" {
+                println!(
+                    "\"{}\" isn't a valid value for \"layer\", going with default: \"top\".",
+                    layer
+                );
+            }
             window.set_layer(Layer::Top);
         }
         // window.set_exclusive_zone(-1);
         if input_mode == "exclusive" {
             window.set_keyboard_mode(KeyboardMode::Exclusive);
         } else {
+            if input_mode != "on-demand" {
+                println!(
+                    "\"{}\" isn't valid mode for \"input\", going with default: \"on-demand\".",
+                    input_mode
+                );
+            }
             window.set_keyboard_mode(KeyboardMode::OnDemand);
         }
 
@@ -84,6 +99,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
 
         flowbox.set_row_spacing(15);
         let app_infos = AppInfo::all();
+        let mut app_images = Vec::new();
         for appynka in app_infos {
             // Filter only apps with show-in UI
             if appynka.should_show() {
@@ -102,6 +118,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                 image.set_icon_size(gtk4::IconSize::Large);
                 image.set_valign(gtk4::Align::Center);
                 image.set_halign(gtk4::Align::Center);
+                app_images.push(image.clone());
                 let app_box = Box::new(Orientation::Vertical, 5);
                 app_box.append(&image);
                 app_box.append(&label);
@@ -122,6 +139,15 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                 1700..=1999 => 9,
                 _ => 10,
             };
+
+            // let icon_size = match window_clone.width() {
+            //     0..=500 => 5,
+            //     _ => 5,
+            // };
+
+            for app_image in app_images.clone().iter() {
+                app_image.set_pixel_size(30);
+            }
 
             flowbox.set_max_children_per_line(columns);
             flowbox.set_min_children_per_line(columns);

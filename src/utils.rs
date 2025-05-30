@@ -59,12 +59,28 @@ pub fn string_to_i32(input: String, which: &str) -> i32 {
         Err(_) => {
             println!("Couldn't parse a string to a number");
             if which == "height" {
+                println!("Going with the default height: 800");
                 out = 800;
             } else if which == "width" {
+                println!("Going with the default width: 600");
                 out = 600;
             } else {
                 out = 0;
             }
+        }
+    }
+    out
+}
+
+pub fn string_to_u32(input: String) -> u32 {
+    let out;
+    match input.parse::<u32>() {
+        Ok(number) => {
+            out = number;
+        }
+        Err(_) => {
+            println!("Couldn't parse a string to a number");
+            out = 0;
         }
     }
     out

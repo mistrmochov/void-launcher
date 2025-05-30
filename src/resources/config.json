@@ -1,9 +1,10 @@
 [
     {
-        "fullscreen": "true",
+        "fullscreen": "false",
         "layer": "top",
-        "input": "on-demand",
+        "input": "exclusive",
         "width": "600",
-        "height": "800"
+        "height": "800",
+        "columns": "auto"
     }
 ]
