@@ -1,20 +1,29 @@
 APP_NAME = void-launcher
 BUILD_DIR = target/release
+BIN = $(BUILD_DIR)/$(APP_NAME)
 INSTALL_BIN = /usr/bin
 INSTALL_SHARE = /usr/share/$(APP_NAME)
-BUILD_BIN = $(BUILD_DIR)/$(APP_NAME)
 
-all: $(BUILD_BIN)
+SRC = $(shell find src -name '*.rs')
+RESOURCES = \
+	src/resources/config.json \
+	src/resources/style.css \
+	src/resources/back.css \
+	src/resources/dark.css \
+	src/resources/light.css \
+	src/resources/void.ui
 
-$(BUILD_BIN):
+all: $(BIN)
+
+$(BIN): $(SRC) $(RESOURCES) Cargo.toml Cargo.lock
 	cargo build --release
 
 install: all
 	@echo "Installing binary..."
-	install -Dm755 $(BUILD_BIN) $(INSTALL_BIN)/$(APP_NAME)
+	install -Dm755 $(BIN) $(INSTALL_BIN)/$(APP_NAME)
 
 	@echo "Installing resources..."
-	mkdir -p $(INSTALL_SHARE)/icons
+	mkdir -p $(INSTALL_SHARE)/images
 	cp -r src/resources/drawable/* $(INSTALL_SHARE)/icons/
 
 uninstall:
@@ -23,7 +32,6 @@ uninstall:
 	rm -rf $(INSTALL_SHARE)
 
 clean:
-	@echo "Cleaning build artifacts..."
 	cargo clean
 
 .PHONY: all install uninstall clean

@@ -178,7 +178,7 @@ pub fn start_animations(
             css = css.replace(from, &to);
             provider.load_from_string(&css);
             window.set_opacity(1.0);
-            glib::timeout_add_local_once(std::time::Duration::from_millis(5), move || {
+            glib::timeout_add_local_once(std::time::Duration::from_millis(20), move || {
                 outline_box.add_css_class("outline-box-anim");
             });
         }
@@ -212,8 +212,9 @@ pub fn start_animations(
     } else {
         let from = "transform: translateY(1px);";
         if css.contains(from) {
-            let to = format!("transform: translateY(0px);");
+            let to = format!("transform: translateY({}px);", window.height());
             css = css.replace(from, &to);
+            outline_box.add_css_class("outline-box-anim");
             provider.load_from_string(&css);
             window.set_opacity(1.0);
         }
