@@ -5,7 +5,7 @@ window {
 
 .outline-box {
     border-radius: 25px;
-    transform: translateY(500px);
+    transform: translateY(770px);
     background: @window_bg_color;
 }
 
