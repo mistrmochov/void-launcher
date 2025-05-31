@@ -186,7 +186,7 @@ pub fn start_animations(
         if css.contains(from) {
             let to = format!(
                 "transform: translateY({}px);",
-                ((window.height() as f64) * 0.80) as i32
+                (window.height() - ((window.height() as f64) * 0.70) as i32)
             );
             css = css.replace(from, &to);
             provider.load_from_string(&css);
