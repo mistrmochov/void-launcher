@@ -4,8 +4,9 @@
     <object class="GtkApplicationWindow" id="window">
         <property name="title">Void Launcher</property>
         <property name="decorated">false</property>
+        <property name="opacity">0.0</property>
         <child>
-            <object class="GtkBox">
+            <object class="GtkBox" id="outline-box">
                 <style>
                     <class name="outline-box" />
                 </style>
@@ -21,6 +22,7 @@
                         <property name="halign">fill</property>
                         <property name="valign">fill</property>
                         <property name="margin-top">20</property>
+                        <property name="margin-bottom">15</property>
                         <property name="margin-end">15</property>
                         <property name="margin-start">15</property>
                         <property name="hexpand">true</property>

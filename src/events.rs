@@ -1,8 +1,10 @@
 use crate::ui::get_object;
+use crate::utils::{ConfFile, get_conf_data};
+use dirs::home_dir;
 use eyre::{Ok, Result};
 use gtk4::{
-    self as gtk, ApplicationWindow, Box, Builder, Button, Entry, EventControllerKey, FlowBox,
-    Image, Label, Orientation,
+    self as gtk, ApplicationWindow, Box, Builder, Button, CssProvider, Entry, EventControllerKey,
+    FlowBox, Image, Label, Orientation,
     gdk::Key,
     gio::{AppInfo, AppLaunchContext, DesktopAppInfo},
     glib,
@@ -23,9 +25,11 @@ pub fn events(
     let app_clone = app.clone();
     let flowbox_clone = flowbox.clone();
     let window_clone = window.clone();
+    let builder_clone = builder.clone();
     key_controller.connect_key_pressed(move |_controller, keyval, _keycode, _state| {
         if keyval == Key::Escape {
-            app.quit();
+            exit_animations(builder_clone.clone(), app.clone())
+                .expect("Failed to execute exit animations!");
         } else if keyval == Key::Return || keyval == Key::KP_Enter {
             let selected = flowbox_clone.selected_children();
             if let Some(first_selected) = selected.first() {
@@ -143,5 +147,130 @@ pub fn apps_events(
         app.quit();
     });
 
+    Ok(())
+}
+
+pub fn start_animations(
+    mut css: String,
+    fullscreen: String,
+    provider: CssProvider,
+    builder: Builder,
+) -> Result<()> {
+    let window: ApplicationWindow = get_object(&builder, "window")?;
+    let home = home_dir().expect("Couldn't locate the home dir.");
+    let conf = ConfFile::new(home.join(".config/void-launcher/config.json"))?;
+
+    let mut start_animation_mode = get_conf_data(conf.read(), "start-animation");
+    let outline_box: Box =
+        get_object(&builder, "outline-box").expect("Failed to get object: \"outline-box\"");
+    let from = "transform: translateY(1px);";
+
+    if (start_animation_mode != "true") && (start_animation_mode != "false") {
+        println!(
+            "\"{}\" isn't a valid option for start-animation, going with default: \"true\".",
+            start_animation_mode
+        );
+        start_animation_mode = "true".to_string();
+    }
+    if (fullscreen == "false") && (start_animation_mode == "true") {
+        if css.contains(from) {
+            let to = format!("transform: translateY({}px);", window.height());
+            css = css.replace(from, &to);
+            provider.load_from_string(&css);
+            window.set_opacity(1.0);
+            glib::timeout_add_local_once(std::time::Duration::from_millis(5), move || {
+                outline_box.add_css_class("outline-box-anim");
+            });
+        }
+    } else if (fullscreen == "true") && (start_animation_mode == "true") {
+        if css.contains(from) {
+            let to = format!(
+                "transform: translateY({}px);",
+                ((window.height() as f64) * 0.70) as i32
+            );
+            css = css.replace(from, &to);
+            provider.load_from_string(&css);
+            let mut opacity = 0.0;
+            glib::timeout_add_local_once(std::time::Duration::from_millis(20), move || {
+                glib::timeout_add_local(std::time::Duration::from_micros(1750), move || {
+                    if opacity == 0.0 {
+                        outline_box.add_css_class("outline-box-anim");
+                    }
+                    opacity += 0.0035;
+                    window.set_opacity(opacity);
+                    if opacity >= 1.0 {
+                        if window.opacity() != 1.0 {
+                            window.set_opacity(1.0);
+                        }
+                        glib::ControlFlow::Break
+                    } else {
+                        glib::ControlFlow::Continue
+                    }
+                });
+            });
+        }
+    } else {
+        let from = "transform: translateY(1px);";
+        if css.contains(from) {
+            let to = format!("transform: translateY(0px);");
+            css = css.replace(from, &to);
+            provider.load_from_string(&css);
+            window.set_opacity(1.0);
+        }
+    }
+    Ok(())
+}
+
+fn exit_animations(builder: Builder, app: gtk::Application) -> Result<()> {
+    let window: ApplicationWindow = get_object(&builder, "window")?;
+    let home = home_dir().expect("Couldn't locate the home dir.");
+    let conf = ConfFile::new(home.join(".config/void-launcher/config.json"))?;
+
+    let mut exit_animation_mode = get_conf_data(conf.read(), "exit-animation");
+    let mut fullscreen = get_conf_data(conf.read(), "fullscreen");
+    let outline_box: Box =
+        get_object(&builder, "outline-box").expect("Failed to get object: \"outline-box\"");
+
+    if (exit_animation_mode != "true") && (exit_animation_mode != "false") {
+        println!(
+            "\"{}\" isn't a valid option for exit-animation, going with default: \"true\".",
+            exit_animation_mode
+        );
+        exit_animation_mode = "true".to_string();
+    }
+    if (fullscreen != "true") && (fullscreen != "false") {
+        println!(
+            "\"{}\" isn't a valid option for fullscreen, going with default: \"true\".",
+            fullscreen
+        );
+        fullscreen = "true".to_string();
+    }
+
+    if (fullscreen == "false") && (exit_animation_mode == "true") {
+        outline_box.add_css_class("outline-box-anim-exit");
+        glib::timeout_add_local_once(std::time::Duration::from_millis(500), move || {
+            app.quit();
+        });
+    } else if (fullscreen == "true") && (exit_animation_mode == "true") {
+        let mut opacity = 1.0;
+        glib::timeout_add_local(std::time::Duration::from_micros(1750), move || {
+            if opacity == 1.0 {
+                outline_box.add_css_class("outline-box-anim-exit");
+            }
+            opacity -= 0.0035;
+            window.set_opacity(opacity);
+            if opacity <= 0.0 {
+                if window.opacity() != 0.0 {
+                    window.set_opacity(0.0);
+                }
+                app.quit();
+                glib::ControlFlow::Break
+            } else {
+                glib::ControlFlow::Continue
+            }
+        });
+    } else {
+        app.quit();
+    }
     Ok(())
 }

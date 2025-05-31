@@ -4,10 +4,18 @@ window {
 }
 
 .outline-box {
-    transform: translateY(0px);
-    /* transition: transform 200ms ease-in-out; */
+    transform: translateY(1px);
     border-radius: 25px;
     background: @window_bg_color;
+}
+
+.outline-box-anim {
+    transition: transform 500ms ease-in-out;
+    transform: translateY(0px);
+}
+
+.outline-box-anim-exit {
+    transform: translateY(1px);
 }
 
 .search-box {

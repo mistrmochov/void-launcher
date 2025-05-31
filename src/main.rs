@@ -138,15 +138,13 @@ fn main() -> io::Result<()> {
             css = format!("{}\n{}", css_light, css);
         }
 
-        provider.load_from_string(&css);
-
         gtk::style_context_add_provider_for_display(
             &Display::default().expect("Couldn't connect to display."),
             &provider,
             gtk::STYLE_PROVIDER_PRIORITY_USER,
         );
 
-        build_ui(app).expect("Failed to build UI!");
+        build_ui(app, css, provider).expect("Failed to build UI!");
     });
 
     application.run();

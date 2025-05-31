@@ -9,6 +9,8 @@
         "icon_size": "auto",
         "background-color": "default",
         "accent-color": "default",
-        "select-color": "default"
+        "select-color": "default",
+        "start-animation": "true",
+        "exit-animation": "true"
     }
 ]

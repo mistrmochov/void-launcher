@@ -2,13 +2,14 @@ use std::cell::RefCell;
 use std::path::PathBuf;
 
 use crate::constants::UI_XML;
-use crate::events::{apps_events, events};
+use crate::events::{apps_events, events, start_animations};
 use crate::is_dark_theme_active;
 use crate::utils::{ConfFile, get_conf_data, string_to_i32, string_to_u32};
 use dirs::home_dir;
 use eyre::{Ok, Result, eyre};
 use gtk4::{
-    self as gtk, ApplicationWindow, Box, Builder, Button, FlowBox, Image, Label, Orientation, gdk,
+    self as gtk, ApplicationWindow, Box, Builder, Button, CssProvider, FlowBox, Image, Label,
+    Orientation,
     gio::AppInfo,
     glib::{self, object::IsA},
     prelude::*,
@@ -16,7 +17,7 @@ use gtk4::{
 use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use std::rc::Rc;
 
-pub fn build_ui(app: &gtk::Application) -> Result<()> {
+pub fn build_ui(app: &gtk::Application, css: String, provider: CssProvider) -> Result<()> {
     let builder = Builder::from_string(UI_XML);
 
     let window: ApplicationWindow = get_object(&builder, "window")?;
@@ -27,7 +28,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
     if let Some(home) = home_dir() {
         let conf = ConfFile::new(home.join(".config/void-launcher/config.json"))?;
         let layer = get_conf_data(conf.read(), "layer");
-        let fullscreen = get_conf_data(conf.read(), "fullscreen");
+        let mut fullscreen = get_conf_data(conf.read(), "fullscreen");
         let input_mode = get_conf_data(conf.read(), "input");
         let mut width = string_to_i32(get_conf_data(conf.read(), "width"), "width");
         let mut height = string_to_i32(get_conf_data(conf.read(), "height"), "height");
@@ -54,6 +55,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                     "\"{}\" isn't a valid value for \"fullscreen\", going with default mode: \"false\".",
                     fullscreen
                 );
+                fullscreen = "false".to_string();
             }
             window.set_anchor(Edge::Top, true);
             window.set_anchor(Edge::Left, true);
@@ -122,7 +124,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
                 let icon_size;
                 if icon_size_string != "auto" {
                     let icon_size_int = string_to_i32(icon_size_string.clone(), "");
-                    if icon_size_int >= 20 {
+                    if (icon_size_int >= 20) && (icon_size_int <= 80) {
                         icon_size = icon_size_int;
                         *icon_size_memory.borrow_mut() = icon_size_int;
                     } else {
@@ -160,6 +162,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
 
         let window_clone = window.clone();
         let icon_size_memory_clone = icon_size_memory.clone();
+        let builder_clone = builder.clone();
         glib::idle_add_local_once(move || {
             let colmuns_mode = string_to_u32(columns_mode_string.clone());
             let columns;
@@ -199,7 +202,8 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
             flowbox.set_max_children_per_line(columns);
             flowbox.set_min_children_per_line(columns);
 
-            println!("{}", window_clone.height());
+            start_animations(css, fullscreen, provider, builder_clone.clone())
+                .expect("Failed to execute function start_animations");
         });
 
         events(app.to_owned(), builder, icon_size_memory.clone())?;
@@ -208,6 +212,9 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
             window.present();
             window.set_decorated(false);
         });
+    } else {
+        println!("Couldn't locate home directory!");
+        app.quit();
     }
 
     Ok(())
