@@ -199,8 +199,7 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
             flowbox.set_max_children_per_line(columns);
             flowbox.set_min_children_per_line(columns);
 
-            // let win = window_clone.upcast::<gtk4::Window>();
-            // window_clone.move_(100, 100);
+            println!("{}", window_clone.height());
         });
 
         events(app.to_owned(), builder, icon_size_memory.clone())?;

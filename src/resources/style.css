@@ -4,8 +4,9 @@ window {
 }
 
 .outline-box {
+    transform: translateY(0px);
+    /* transition: transform 200ms ease-in-out; */
     border-radius: 25px;
-    /* transform: translateY(770px); */
     background: @window_bg_color;
 }
 
