@@ -33,25 +33,6 @@ pub fn get_conf_data(conf: String, which: &str) -> String {
     out
 }
 
-pub fn get_border_color(conf: String) -> Vec<String> {
-    let mut color = Vec::new();
-    let data: Value = serde_json::from_str(&conf).expect("Failed to get data from json");
-
-    if let Some(data_array) = data.as_array() {
-        for entry in data_array {
-            if let Some(targets) = entry.get("border_color").and_then(|s| s.as_array()) {
-                for target in targets {
-                    if let Some(color_cute) = target.as_str() {
-                        color.push(color_cute.to_string());
-                    }
-                }
-            }
-        }
-    }
-
-    color
-}
-
 pub fn string_to_i32(input: String, which: &str) -> i32 {
     let out;
     match input.parse::<i32>() {

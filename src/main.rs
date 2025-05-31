@@ -1,16 +1,21 @@
-use crate::constants::{CSS, DEFAULT_JSON};
+use crate::constants::{BACK, CSS, CSS_DARK, CSS_LIGHT, DEFAULT_JSON};
 use crate::ui::build_ui;
-use crate::utils::ConfFile;
+use crate::utils::{ConfFile, get_conf_data};
 use dirs::home_dir;
 use gtk4::{self as gtk, CssProvider, Settings, gdk::Display, prelude::*};
+use regex::Regex;
 use std::fs::{self, File};
 use std::io;
-use std::path::PathBuf;
 
 mod constants;
 mod events;
 mod ui;
 mod utils;
+
+fn is_valid_hex_color(color: &str) -> bool {
+    let re = Regex::new(r"^#[0-9a-fA-F]{6}$").unwrap();
+    re.is_match(color)
+}
 
 fn files_init() -> io::Result<()> {
     let home = home_dir().expect("Failed to determine home directory!");
@@ -51,6 +56,7 @@ pub fn is_dark_theme_active() -> bool {
 
     theme
 }
+
 fn main() -> io::Result<()> {
     let application = gtk::Application::builder()
         .application_id("com.void-launcher.com")
@@ -60,11 +66,76 @@ fn main() -> io::Result<()> {
     application.connect_startup(|app| {
         let provider = CssProvider::new();
         let home = home_dir().expect("Failed to determine home directory!");
+
         let mut css = CSS.to_string();
         let css_path = home.join(".config/void-launcher/style.css");
+        let mut css_dark = CSS_DARK.to_string();
+        let mut css_light = CSS_LIGHT.to_string();
+
+        let conf = ConfFile::new(home.join(".config/void-launcher/config.json"))
+            .expect("Failed to create ConfFile.");
+        let custom_background = get_conf_data(conf.read(), "background-color");
+        let custom_accent_color = get_conf_data(conf.read(), "accent-color");
+        let custom_select_color = get_conf_data(conf.read(), "select-color");
+
+        if custom_background != "default" {
+            if is_valid_hex_color(&custom_background) {
+                if let Ok(regex_from) = Regex::new(r"background: .*") {
+                    let to = format!("background: {};", custom_background);
+                    let new_contents = regex_from.replace(BACK, to);
+                    css = format!("{}\n{}", css, new_contents);
+                } else {
+                    println!("Couldn't process the Regex!");
+                }
+            } else {
+                println!(
+                    "{} isn't valid color, going with default.",
+                    custom_background
+                );
+            }
+        }
+        if custom_accent_color != "default" {
+            if is_valid_hex_color(&custom_accent_color) {
+                if let Ok(regex_from) = Regex::new(r"--accent-color: .*") {
+                    let to = format!("--accent-color: {};", custom_accent_color);
+                    css_dark = regex_from.replace(&css_dark, to.clone()).to_string();
+                    css_light = regex_from.replace(&css_light, to).to_string();
+                } else {
+                    println!("Couldn't process the Regex!");
+                }
+            } else {
+                println!(
+                    "{} isn't valid color, going with default.",
+                    custom_accent_color
+                );
+            }
+        }
+        if custom_select_color != "default" {
+            if is_valid_hex_color(&custom_select_color) {
+                if let Ok(regex_from) = Regex::new(r"--select-color: .*") {
+                    let to = format!("--select-color: {};", custom_select_color);
+                    css_dark = regex_from.replace(&css_dark, to.clone()).to_string();
+                    css_light = regex_from.replace(&css_light, to).to_string();
+                } else {
+                    println!("Couldn't process the Regex!");
+                }
+            } else {
+                println!(
+                    "{} isn't valid color, going with default.",
+                    custom_select_color
+                );
+            }
+        }
+
         if css_path.exists() && css_path.is_file() {
             let new_css = ConfFile::new(css_path).expect("Failed to create ConfFile.");
             css = format!("{}\n{}", css, new_css.read());
+        }
+
+        if is_dark_theme_active() {
+            css = format!("{}\n{}", css_dark, css);
+        } else {
+            css = format!("{}\n{}", css_light, css);
         }
 
         provider.load_from_string(&css);

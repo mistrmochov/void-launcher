@@ -3,84 +3,94 @@
     <requires lib="gtk" version="4.0" />
     <object class="GtkApplicationWindow" id="window">
         <property name="title">Void Launcher</property>
+        <property name="decorated">false</property>
         <child>
             <object class="GtkBox">
                 <style>
-                    <class name="main-box" />
+                    <class name="outline-box" />
                 </style>
                 <property name="orientation">vertical</property>
-                <property name="spacing">2</property>
-                <property name="halign">fill</property>
-                <property name="valign">fill</property>
-                <property name="margin-top">15</property>
-                <property name="margin-end">15</property>
-                <property name="margin-start">15</property>
-                <property name="hexpand">true</property>
-                <property name="vexpand">true</property>
+                <property name="spacing">0</property>
                 <child>
                     <object class="GtkBox">
                         <style>
-                            <class name="search-box" />
+                            <class name="main-box" />
                         </style>
-                        <property name="orientation">horizontal</property>
-                        <property name="spacing">10</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">2</property>
                         <property name="halign">fill</property>
-                        <property name="valign">center</property>
-                        <property name="hexpand">true</property>
-                        <!-- <property name="homogeneous">true</property> -->
-                        <child>
-                            <object class="GtkImage" id="search-image">
-                            </object>
-                        </child>
-                        <child>
-                            <object class="GtkEntry" id="search-entry">
-                                <style>
-                                    <class name="search-entry" />
-                                    <class name="flat" />
-                                </style>
-                                <property name="placeholder-text"></property>
-                                <!-- <property name="width_chars">20</property>
-                                <property name="max_width_chars">20</property> -->
-                                <property name="valign">center</property>
-                                <property name="halign">fill</property>
-                                <property name="hexpand">true</property>
-                            </object>
-                        </child>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkBox">
-                        <style>
-                            <class name="recent-box" />
-                        </style>
-                        <property name="orientation">horizontal</property>
-                        <property name="spacing">10</property>
-                        <property name="halign">center</property>
-                        <property name="valign">center</property>
-                        <property name="visible">false</property>
-                    </object>
-                </child>
-                <child>
-                    <object class="GtkScrolledWindow" id="scrolled-window">
-                        <style>
-                            <class name="scrolled-window" />
-                        </style>
-                        <property name="hscrollbar_policy">never</property>
-                        <property name="min_content_width">1</property>
+                        <property name="valign">fill</property>
+                        <property name="margin-top">20</property>
+                        <property name="margin-end">15</property>
+                        <property name="margin-start">15</property>
                         <property name="hexpand">true</property>
                         <property name="vexpand">true</property>
-                        <property name="margin-top">1</property>
                         <child>
-                            <object class="GtkFlowBox" id="apps-box">
+                            <object class="GtkBox">
                                 <style>
-                                    <class name="apps-box" />
+                                    <class name="search-box" />
                                 </style>
-                                <property name="max-children-per-line">5</property>
-                                <property name="min-children-per-line">5</property>
-                                <property name="selection_mode">single</property>
-                                <property name="valign">start</property>
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">10</property>
+                                <property name="halign">fill</property>
+                                <property name="valign">center</property>
+                                <property name="hexpand">true</property>
+                                <!-- <property name="homogeneous">true</property> -->
+                                <child>
+                                    <object class="GtkImage" id="search-image">
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkEntry" id="search-entry">
+                                        <style>
+                                            <class name="search-entry" />
+                                            <class name="flat" />
+                                        </style>
+                                        <property name="placeholder-text"></property>
+                                        <!-- <property name="width_chars">20</property>
+                                <property name="max_width_chars">20</property> -->
+                                        <property name="valign">center</property>
+                                        <property name="halign">fill</property>
+                                        <property name="hexpand">true</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkBox">
+                                <style>
+                                    <class name="recent-box" />
+                                </style>
+                                <property name="orientation">horizontal</property>
+                                <property name="spacing">10</property>
+                                <property name="halign">center</property>
+                                <property name="valign">center</property>
+                                <property name="visible">false</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkScrolledWindow" id="scrolled-window">
+                                <style>
+                                    <class name="scrolled-window" />
+                                </style>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="min_content_width">1</property>
                                 <property name="hexpand">true</property>
                                 <property name="vexpand">true</property>
+                                <property name="margin-top">1</property>
+                                <child>
+                                    <object class="GtkFlowBox" id="apps-box">
+                                        <style>
+                                            <class name="apps-box" />
+                                        </style>
+                                        <property name="max-children-per-line">5</property>
+                                        <property name="min-children-per-line">5</property>
+                                        <property name="selection_mode">single</property>
+                                        <property name="valign">start</property>
+                                        <property name="hexpand">true</property>
+                                        <property name="vexpand">true</property>
+                                    </object>
+                                </child>
                             </object>
                         </child>
                     </object>

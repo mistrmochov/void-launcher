@@ -1,10 +1,12 @@
-* {
-    --accent-color: #404040;
-    --select-color: #ffc0cb;
+window {
+    border: none;
+    background: none;
 }
 
-window {
+.outline-box {
     border-radius: 25px;
+    transform: translateY(500px);
+    background: @window_bg_color;
 }
 
 .search-box {

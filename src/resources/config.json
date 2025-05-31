@@ -6,6 +6,9 @@
         "width": "600",
         "height": "800",
         "columns": "auto",
-        "icon_size": "auto"
+        "icon_size": "auto",
+        "background-color": "default",
+        "accent-color": "default",
+        "select-color": "default"
     }
 ]

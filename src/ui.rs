@@ -8,7 +8,7 @@ use crate::utils::{ConfFile, get_conf_data, string_to_i32, string_to_u32};
 use dirs::home_dir;
 use eyre::{Ok, Result, eyre};
 use gtk4::{
-    self as gtk, ApplicationWindow, Box, Builder, Button, FlowBox, Image, Label, Orientation,
+    self as gtk, ApplicationWindow, Box, Builder, Button, FlowBox, Image, Label, Orientation, gdk,
     gio::AppInfo,
     glib::{self, object::IsA},
     prelude::*,
@@ -198,6 +198,9 @@ pub fn build_ui(app: &gtk::Application) -> Result<()> {
 
             flowbox.set_max_children_per_line(columns);
             flowbox.set_min_children_per_line(columns);
+
+            // let win = window_clone.upcast::<gtk4::Window>();
+            // window_clone.move_(100, 100);
         });
 
         events(app.to_owned(), builder, icon_size_memory.clone())?;
