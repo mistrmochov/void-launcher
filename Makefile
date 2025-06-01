@@ -23,7 +23,7 @@ install: all
 	install -Dm755 $(BIN) $(INSTALL_BIN)/$(APP_NAME)
 
 	@echo "Installing resources..."
-	mkdir -p $(INSTALL_SHARE)/images
+	mkdir -p $(INSTALL_SHARE)/icons
 	cp -r src/resources/drawable/* $(INSTALL_SHARE)/icons/
 
 uninstall:
